@@ -1,0 +1,20 @@
+# General build artifacts:
+Makefile
+CMakeFiles/
+CMakeCache.txt
+CMakeLists.txt.user
+cmake_install.cmake
+release/
+debug/
+build/
+*.o
+wavgen
+
+# Artifacts if cross-compiling with Zig:
+.zig-cache/
+zig-out/
+build-*/
+docgen_tmp/
+
+#Runtime artifacts:
+*.wav
