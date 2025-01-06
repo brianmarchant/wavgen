@@ -1,17 +1,31 @@
-cmake_minimum_required(VERSION 3.5)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
 
-project(wavgen LANGUAGES C)
+PROJECT(wavgen LANGUAGES C)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+SET(WAVGEN_SOURCES
+    help.c
+    log.c
+    opts.c
+    riff.c
+    wavgen.c
+    wf_burst.c
+    wf_counter.c
+    wf_markers.c
+    wf_noise.c
+    wf_output.c
+    wf_saw.c
+    wf_silence.c
+    wf_sine.c
+    wf_square.c
+    wf_steps.c
+    )
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+ADD_EXECUTABLE(wavgen ${WAVGEN_SOURCES})
+TARGET_LINK_LIBRARIES(wavgen)
 
-add_executable(wavgen wavgen.c help.c log.c opts.c riff.c wf_output.c wf_counter.c wf_noise.c wf_saw.c wf_silence.c wf_sine.c wf_square.c wf_steps.c wf_markers.c wf_burst.c)
-target_link_libraries(wavgen)
+INSTALL(TARGETS wavgen RUNTIME DESTINATION bin)
 
-find_library(MATH_LIBRARY m)
+FIND_LIBRARY(MATH_LIBRARY m)
 if(MATH_LIBRARY)
-    target_link_libraries(wavgen PUBLIC ${MATH_LIBRARY})
+    TARGET_LINK_LIBRARIES(wavgen PUBLIC ${MATH_LIBRARY})
 endif()

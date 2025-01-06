@@ -1,0 +1,25 @@
+config BR2_PACKAGE_WAVGEN
+   bool "wavgen"
+   default n
+
+   help
+     WAV-file generator tool
+
+     This utility allows simple test WAV files to be generated
+     on the target device, and so removes the need to include
+     large WAV files in the .itb.
+
+     The wavgen utility can generate:
+
+       * Sawtooth waveforms.
+       * Sine-waves.
+       * Square-waves.
+       * Pink noise.
+       * White noise.
+       * Counters.
+       * Stepped waveforms with known levels.
+       * Periodic bursts.
+       * Silence.
+
+     The output can also be piped directly to aplay, avoiding
+     the need to generate a file on disk.
