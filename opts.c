@@ -49,7 +49,7 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
     /*
     ** Define the available options, both short and long.
     */
-    static const char short_opts[] = "ahuvx:b:c:d:f:l:m:n:p:r:s:t:w:";
+    static const char short_opts[] = "huva:x:b:c:d:f:l:m:n:p:r:s:t:w:";
     static struct option long_opts[] = {
        {"align",        required_argument, 0, 'a' },
        {"bitdepth",     required_argument, 0, 'b' },
