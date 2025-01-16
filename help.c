@@ -13,7 +13,8 @@ void help(void)
 {
     printf("Waveform Generator (wavgen) utility version %s\n", version_str);
     printf("\n");
-    printf("Usage: wavgen [opts] [filename]\n\n");
+    printf("Usage: wavgen -t <type> [opts] [filename]\n");
+    printf("       wavgen -t <type> [opts] | aplay [opts]\n\n");
     printf("Where opts:\n");
     printf(" -a [--align]     Alignment level in dBFS that the peak level is relative to.\n");
     printf(" -b [--bitdepth]  Bit-depth of the samples (16, 24 or 32-bit) [32-bit].\n");
@@ -33,6 +34,9 @@ void help(void)
     printf("and:\n");
     printf(" filename is the output wavfile name, required unless piping to another program.\n");
     printf("\n");
+    printf("Durations are in milliseconds unless an h/m/s suffix is appended, e.g. '10s'.\n");
+    printf("Frequency is in hertz unless a k or kHz suffix is appended, e.g. '1k'\n");
+    printf("\n");
     printf("The arguments for waveform type (-t/--type) are:\n");
     printf(" counter : +ve sample values incrementing by one LSB (a very slow saw-tooth).\n");
     printf(" steps   : A set of five levels useful for checking normalisation/conversion.\n");
@@ -45,7 +49,7 @@ void help(void)
     printf(" white   : White noise generated using a fast psudo-random noise generator.\n");
     printf("\n");
     printf("e.g. wavgen -t counter -b 32 -c 2 -m msb /tmp/count-s32le-2ch-marked.wav\n");
-    printf(" or  wavgen -t sine -b 32 -c 2 -d 1000 -f 1000 | aplay -D hw:default\n");
+    printf(" or  wavgen -t sine -b 32 -c 2 -d 1000 -f 1000 | aplay -D default\n");
     printf("\n");
     printf("Use 'wavgen -t <type> --help' for context-sensitive help on each waveform type.\n");
 }
@@ -275,18 +279,20 @@ void help_type_white(void)
 
 void help_type_unknown(void)
 {
-    printf("UNRECOGNISED type:\n");
+    printf("UNRECOGNISED waveform type, or no type specified:\n");
     printf("\n");
     printf("These waveform types are supported:\n");
-    printf(" -t burst   : A periodic burst of -c sine-wave cycles every -p seconds.\n");
-    printf(" -t counter : A non-audio increamental count in each sample position.\n");
-    printf(" -t saw     : A saw-tooth waveform at frequency -f <freq>.\n");
-    printf(" -t silence : Audio silence (zero-value samples) with optional channel markers.\n");
-    printf(" -t sine    : A sine-wave at frequency -f <freq>.\n");
-    printf(" -t steps   : A non-audio waveform consisting of large discrete steps.\n");
-    printf(" -t square  : A square-wave at frequency -f <freq>.\n");
-    printf(" -t pink    : A pink noise source (1/f filtered white noise).\n");
-    printf(" -t white   : A white noise source.\n");
+    printf(" burst   : A periodic burst of -c sine-wave cycles every -p seconds.\n");
+    printf(" counter : A non-audio increamental count in each sample position.\n");
+    printf(" saw     : A saw-tooth waveform at frequency -f <freq>.\n");
+    printf(" silence : Audio silence (zero-value samples) with optional channel markers.\n");
+    printf(" sine    : A sine-wave at frequency -f <freq>.\n");
+    printf(" steps   : A non-audio waveform consisting of large discrete steps.\n");
+    printf(" square  : A square-wave at frequency -f <freq>.\n");
+    printf(" pink    : A pink noise source (1/f filtered white noise).\n");
+    printf(" white   : A white noise source.\n");
+    printf("\n");
+    printf("Use the -t or --type option to specify the waveform, e.g. -t saw or --type=sine\n");
 }
 
 void help_version(void)

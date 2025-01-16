@@ -7,6 +7,54 @@
 #include <getopt.h>
 #include "wavgen.h"
 
+void parse_duration(const char* arg_str, uint32_t *duration_ms)
+{
+    int items;
+    char units[2];
+
+    items = sscanf(arg_str, "%u%c%c", duration_ms, &units[0], &units[1]);
+    if (items > 1) {
+        if (units[0] == 's') {
+            *duration_ms *= 1000U; // Seconds to ms.
+        }
+        else if (units[0] == 'm') {
+            if (units[1] == '\0') {
+                *duration_ms *= 60000; // Minutes to ms.
+            }
+            else {
+                if (units[1] != 's') { // A suffix of 'ms' is allowed.
+                    printf("ERROR: Unknown units for duration (use s, m, h, ms or nothing)");
+                    exit(EXIT_FAILURE);
+                }
+            }
+        }
+        else if (units[0] == 'h') {
+            *duration_ms *= 3600000; // Hours to ms.
+        }
+        else if (units[0] != '\0') {
+            printf("ERROR: Unknown units for duration (use h, m, s, ms/nothing)");
+            exit(EXIT_FAILURE);
+        }
+    } // else ms is assumed.
+}
+
+void parse_frequency(const char* arg_str, uint32_t *freq_hz)
+{
+    int items;
+    char units[2];
+
+    items = sscanf(arg_str, "%u%c%c", freq_hz, &units[0], &units[1]);
+    if (items > 1) {
+        if (units[0] == 'k') {
+            *freq_hz *= 1000U; // kHz to Hz.
+        }
+        else if (units[1] != 'h' && units[1] != 'H') {
+            printf("ERROR: Unknown units for frequency (use kHz or Hz/nothing)");
+            exit(EXIT_FAILURE);
+        }
+    } // else hz is assumed.
+}
+
 void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMON_USER_PARAMS *user, struct ADDITIONAL_USER_PARAMS *extra)
 {
     int opt;
@@ -93,7 +141,7 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
 
         case 'b':
             log_extra(fixed, "Bit-depth option is '%s'\n", optarg);
-            sscanf(optarg, "%u", &user->bits_per_sample);
+            sscanf(optarg, "%hu", &user->bits_per_sample);
 
             if ((user->bits_per_sample != 32U ) && (user->bits_per_sample != 16U ) && (user->bits_per_sample != 0U)) {
                 log_info(fixed, "This bit-width is not currently supported.\n");
@@ -123,7 +171,7 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
 
         case 'c':
             log_extra(fixed, "Channels option is '%s'\n", optarg);
-            sscanf(optarg, "%u", &user->num_channels);
+            sscanf(optarg, "%hu", &user->num_channels);
             if (user->num_channels > MAX_CHANNELS) {
                 user->num_channels = MAX_CHANNELS;
             }
@@ -131,23 +179,14 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
             break;
 
         case 'd':
-            /*
-            ** TODO: Support unit suffixes such as '10ms', '60s' or '1m'.
-            */
-            log_extra(fixed, "Duration option is '%s' ms\n", optarg);
-            sscanf(optarg, "%u", &opt_d);
-            if (opt_d > MAX_DURATION_MS) {
-                opt_d = MAX_DURATION_MS;
-            }
+            log_extra(fixed, "Duration option is '%s'\n", optarg);
+            parse_duration(optarg, &opt_d);
             num_args += 2;
             break;
 
         case 'f':
-            /*
-            ** TODO: Support unit suffixes such as '1k' or '440Hz'.
-            */
             log_extra(fixed, "Frequency option is '%s'\n", optarg);
-            sscanf(optarg, "%u", &user->frequency_hz);
+            parse_frequency(optarg, &user->frequency_hz);
             /* Constrained later when the sample rate is known.*/
             num_args += 2;
             break;
@@ -186,20 +225,14 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
             break;
 
         case 'p':
-            /*
-            ** TODO: Support unit suffixes such as '10ms' or '1s'.
-            */
             log_extra(fixed, "Period option is '%s' ms\n", optarg);
-            sscanf(optarg, "%u", &extra->period_ms);
+            parse_duration(optarg, &extra->period_ms);
             num_args += 2;
             break;
 
         case 'r':
-            /*
-            ** TODO: Support unit suffixes such as '48k' or '96kHz'.
-            */
-            log_extra(fixed, "Sample Rate option is '%s' Hz\n", optarg);
-            sscanf(optarg, "%u", &user->sample_rate);
+            log_extra(fixed, "Sample Rate option is '%s'\n", optarg);
+            parse_frequency(optarg, &user->sample_rate);
             if (user->sample_rate > MAX_SAMPLE_RATE_HZ) {
                 user->sample_rate = MAX_SAMPLE_RATE_HZ;
             }
@@ -267,7 +300,7 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
 
         case 'w':
             log_extra(fixed, "Power fraction option is '%s'\n", optarg);
-            sscanf(optarg, "%u", &extra->power_fraction);
+            sscanf(optarg, "%hu", &extra->power_fraction);
             if (extra->power_fraction < 1U) {
                 extra->power_fraction = 1U;
             }
@@ -300,6 +333,14 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
             help();
         }
         exit(EXIT_SUCCESS);
+    }
+
+    /*
+    ** Stop now if the user didn't specify a waveform type. This is required.
+    */
+    if (user->wf_type == NUM_WAVEFORM_TYPES) {
+        waveform_type_help(user->wf_type);
+        exit(EXIT_FAILURE);
     }
 
     /*
@@ -385,7 +426,15 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
         user->duration_ms = (opt_s * 1000U) / user->sample_rate; // This does not need to be accurate.
     }
     else {
-        /* If no opt_s, assume that DURATION (in ms) was specified (opt_d).*/
+        /*
+        ** If no opt_s, assume that DURATION (in ms) was specified (opt_d).
+        ** Constrain the duration to a maximum, although it will still be possible to
+        ** overflow the uint32_t miliiseconds value by asking for a silly number of hours.
+        */
+        if (opt_d > MAX_DURATION_MS) {
+            opt_d = MAX_DURATION_MS;
+        }
+
         user->num_samples = (opt_d * user->sample_rate * user->num_channels) / 1000U;
         user->duration_ms = opt_d;
     }
@@ -410,7 +459,7 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
 ** Most common is the requirement for an "eighth-power" waveform, i.e. power_fraction == 8.
 ** Zero/null == unused.
 */
-double gain_from_params(struct FIXED_PARAMS *fixed, float align_dbfs, float peak_dbfs, uint32_t power_fraction)
+double gain_from_params(struct FIXED_PARAMS *fixed, float align_dbfs, float peak_dbfs, uint16_t power_fraction)
 {
     double gain;
     double target_dbfs;

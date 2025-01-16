@@ -90,10 +90,10 @@ void riff_init_format(struct RIFF_FMT_CHUNK *chunk, uint32_t sample_rate, bool i
                       uint16_t num_channels, uint16_t bytes_per_sample, uint16_t bits_per_sample);
 bool riff_write_format(struct RIFF_FMT_CHUNK *chunk, FILE *file);
 
-void riff_init_fact(struct  RIFF_EXT_FMT_CHUNK *chunk, uint64_t num_samples);
+void riff_init_fact(struct  RIFF_EXT_FMT_CHUNK *chunk, uint32_t num_samples);
 bool riff_write_fact(struct RIFF_EXT_FMT_CHUNK *chunk, FILE *file);
 
-void riff_init_data_hdr(struct RIFF_DATA_CHUNK *chunk, uint64_t num_data_bytes);
+void riff_init_data_hdr(struct RIFF_DATA_CHUNK *chunk, uint32_t num_data_bytes);
 bool riff_write_data_hdr(struct RIFF_DATA_CHUNK *chunk, FILE *file);
 
 #endif

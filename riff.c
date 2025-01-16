@@ -30,17 +30,19 @@ void riff_init_header(struct RIFF_HEADER *chunk, uint64_t num_data_bytes, bool i
     ** Floating-point formats must include the extra chunk that describes the float format.
     */
     if (!is_float_format) {
-        chunk->ChunkSize = sizeof(chunk->FormatTag)       // ChunkSize doesn't include ChunkID/ChunkSize fields.
+        chunk->ChunkSize = (uint32_t) (
+                           sizeof(chunk->FormatTag)       // ChunkSize doesn't include ChunkID/ChunkSize fields.
                          + sizeof(struct RIFF_FMT_CHUNK)  // Include the size of the format chunk.
                          + sizeof(struct RIFF_DATA_CHUNK) // Include the size of the data chunk.
-                         + num_data_bytes;                // Include the total bytes used for sample data.
+                         + num_data_bytes);                // Include the total bytes used for sample data.
     }
     else {
-        chunk->ChunkSize = sizeof(chunk->FormatTag)
+        chunk->ChunkSize = (uint32_t) (
+                           sizeof(chunk->FormatTag)
                          + sizeof(struct RIFF_FMT_CHUNK)
                          + sizeof(struct RIFF_EXT_FMT_CHUNK) // Floating-point files must include this too.
                          + sizeof(struct RIFF_DATA_CHUNK)
-                         + num_data_bytes;
+                         + num_data_bytes);
     }
 }
 
@@ -95,7 +97,7 @@ bool riff_write_format(struct RIFF_FMT_CHUNK *chunk, FILE *file)
 **
 ** param  chunk : A pointer to the struct to initialise.
 */
-void riff_init_fact(struct RIFF_EXT_FMT_CHUNK *chunk, uint64_t num_samples)
+void riff_init_fact(struct RIFF_EXT_FMT_CHUNK *chunk, uint32_t num_samples)
 {
     chunk->ChunkID    = __builtin_bswap32(0x66616374); // "fact" - BIG ENDIAN.
     chunk->ChunkSize  = 4U;                            // Just the NumSamples field.
@@ -121,7 +123,7 @@ bool riff_write_fact(struct RIFF_EXT_FMT_CHUNK *chunk, FILE *file)
 ** param  chunk          : A pointer to the struct to initialise.
 ** param  num_data_bytes : The number of audio data BYTES to be appended.
 */
-void riff_init_data_hdr(struct RIFF_DATA_CHUNK *chunk, uint64_t num_data_bytes)
+void riff_init_data_hdr(struct RIFF_DATA_CHUNK *chunk, uint32_t num_data_bytes)
 {
     chunk->ChunkID   = __builtin_bswap32(0x64617461); // "data" - BIG ENDIAN.
     chunk->ChunkSize = num_data_bytes;

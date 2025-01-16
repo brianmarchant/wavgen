@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     ** Note that num_samples is across ALL channels.
     */
     num_data_bytes = user.num_samples * user.bytes_per_sample;
-    log_extra(&fixed, "Samples to generate (per channel) = %lu, duration ~%u ms\n",
+    log_extra(&fixed, "Samples to generate (per channel) = %lu, duration ~%lu ms\n",
               user.num_samples, user.duration_ms);
 
     /*
