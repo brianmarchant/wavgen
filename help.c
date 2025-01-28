@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include "wavgen.h"
 
-static const char version_str[] = "0.0.1";
-
 void help(void)
 {
     printf("Waveform Generator (wavgen) utility version %s\n", version_str);
@@ -17,7 +15,7 @@ void help(void)
     printf("       wavgen -t <type> [opts] | aplay [opts]\n\n");
     printf("Where opts:\n");
     printf(" -a [--align]     Alignment level in dBFS that the peak level is relative to.\n");
-    printf(" -b [--bitdepth]  Bit-depth of the samples (16, 24 or 32-bit) [32-bit].\n");
+    printf(" -b [--bitdepth]  Bit-depth of the samples (16, 24 or 32-bit), or 0 for float32 [32-bit].\n");
     printf(" -c [--channels]  Number of channels in the generated output file [1].\n");
     printf(" -d [--duration]  Duration of the file content in seconds [default 1s].\n");
     printf(" -f [--frequency] Frequency (does not effect the 'count' types) [440Hz].\n");

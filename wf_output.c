@@ -71,7 +71,12 @@ void check_format(struct FIXED_PARAMS *fixed,
                   struct COMMON_USER_PARAMS *user)
 {
     if (user->save_as_float) {
+        /*
+        ** Float32 WAV format has samples aligned to 1.0f, so convert to float then
+        ** scale by the maximum integer value that the waveform generators produce.
+        */
         fixed->sample_value.f = (float) fixed->sample_value.i;
+        fixed->sample_value.f /= MAX_LEVEL_32BIT;
     }
 }
 

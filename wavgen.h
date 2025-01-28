@@ -15,6 +15,8 @@
 #include <unistd.h> // for isatty
 #include <stdbool.h>
 
+static const char version_str[] = "0.0.4";
+
 /*
 ** Define some upper limits, not all of which are strongly enforced.
 */
