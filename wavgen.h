@@ -15,7 +15,7 @@
 #include <unistd.h> // for isatty
 #include <stdbool.h>
 
-static const char version_str[] = "0.0.4";
+static const char version_str[] = "0.0.5";
 
 /*
 ** Define some upper limits, not all of which are strongly enforced.
@@ -63,11 +63,11 @@ typedef union {
 */
 struct COMMON_USER_PARAMS {
     bool     save_as_float;     // -b 0
-    uint32_t sample_rate;       // -r 48000|44100 etc,
-    uint16_t bits_per_sample;   // -b 32|24|16
-    uint16_t bytes_per_sample;  //    =4 =4 =2
-    uint16_t num_channels;      // -c 1:8
+    uint8_t  num_channels;      // -c 1:8
+    uint8_t  bits_per_sample;   // -b 32|24|16
+    uint8_t  bytes_per_sample;  //    =4 =4 =2
     uint32_t frequency_hz;      // -f (of the main waveform)
+    uint32_t sample_rate;       // -r 48000|44100 etc,
     uint32_t duration_ms;       // -d (or calculated from -s)
     uint32_t num_samples;       // -s (or calculated from -d)
     float    peak_level_dbfs;   // -l

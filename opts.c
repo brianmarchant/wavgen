@@ -141,7 +141,7 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
 
         case 'b':
             log_extra(fixed, "Bit-depth option is '%s'\n", optarg);
-            sscanf(optarg, "%hu", &user->bits_per_sample);
+            sscanf(optarg, "%hhu", &user->bits_per_sample);
 
             if ((user->bits_per_sample != 32U ) && (user->bits_per_sample != 16U ) && (user->bits_per_sample != 0U)) {
                 log_info(fixed, "This bit-width is not currently supported.\n");
@@ -171,7 +171,7 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
 
         case 'c':
             log_extra(fixed, "Channels option is '%s'\n", optarg);
-            sscanf(optarg, "%hu", &user->num_channels);
+            sscanf(optarg, "%hhu", &user->num_channels);
             if (user->num_channels > MAX_CHANNELS) {
                 user->num_channels = MAX_CHANNELS;
             }
@@ -435,7 +435,8 @@ void parse_opts(int argc, char *argv[], struct FIXED_PARAMS *fixed, struct COMMO
             opt_d = MAX_DURATION_MS;
         }
 
-        user->num_samples = (opt_d * user->sample_rate * user->num_channels) / 1000U;
+        // The calculation could overflow so a cast to 64-bit is required.
+        user->num_samples = ((uint64_t) opt_d * user->sample_rate * user->num_channels) / 1000U;
         user->duration_ms = opt_d;
     }
 
